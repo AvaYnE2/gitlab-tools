@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GitLab Release Manager
+
+A web application for creating and managing merge requests across multiple GitLab projects at once.
+
+## Features
+
+- Connect with your GitLab personal access token
+- Browse and search your GitLab projects
+- Create merge requests for multiple projects at once
+- Configure per-project target branches
+- View merge request status (open, closed)
+- Close existing merge requests
+- Secure token handling (client-side encryption, session storage option)
+
+## Architecture
+
+This application consists of two main components:
+
+1. **Frontend**: Next.js application with React, Tailwind CSS, and shadcn UI
+2. **Backend**: Bun server with Elysia framework for API handling
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+ for the frontend
+- Bun latest version for the backend
+
+### Installation
+
+1. Install frontend dependencies:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
+npm install
+```
+
+2. Install backend dependencies:
+
+```bash
+cd server
+bun install
+```
+
+3. Configure the environment:
+
+Create a `.env` file in the server directory with:
+
+```
+PORT=3001
+GITLAB_API_URL=https://gitlab.com/api/v4
+ENCRYPTION_KEY=your_secret_key_for_encryption
+```
+
+### Development
+
+1. Start the backend:
+
+```bash
+cd server
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Start the frontend:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Visit `http://localhost:3000` to use the application.
 
-## Learn More
+## Security
 
-To learn more about Next.js, take a look at the following resources:
+- GitLab tokens are encrypted before storage
+- Option to store token in session storage (cleared when browser closes)
+- No tokens are stored on the server, only used transiently
+- All API requests are proxied through the backend for improved security
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## License
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
