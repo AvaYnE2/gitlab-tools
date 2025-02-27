@@ -149,5 +149,29 @@ export const routes = (app: Elysia) => {
           }),
         },
       )
+      
+      // Get all merge requests across all projects
+      .get(
+        "/merge-requests",
+        ({ query, headers }) =>
+          controllers.getAllMergeRequests(
+            headers.authorization as string,
+            query.state || "opened",
+            query.scope || "created_by_me",
+            Number(query.page) || 1,
+            Number(query.perPage) || 20,
+          ),
+        {
+          query: t.Object({
+            state: t.Optional(t.String()),
+            scope: t.Optional(t.String()),
+            page: t.Optional(t.String()),
+            perPage: t.Optional(t.String()),
+          }),
+          headers: t.Object({
+            authorization: t.Optional(t.String()),
+          }),
+        },
+      )
   );
 };

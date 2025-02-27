@@ -42,6 +42,7 @@ export function Header({ hasToken, onLogout, storageType }: HeaderProps) {
               <nav className="flex space-x-2">
                 <NavLink href="/">Projects</NavLink>
                 <NavLink href="/release">Release Tool</NavLink>
+                <NavLink href="/merge-requests">Merge Requests</NavLink>
               </nav>
             )}
           </div>

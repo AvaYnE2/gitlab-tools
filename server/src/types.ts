@@ -32,6 +32,7 @@ export interface MergeRequestResponse {
   state: string;
   web_url: string;
   created_at: string;
+  project_name?: string; // Added for our enhanced response
 }
 
 // API request/response types

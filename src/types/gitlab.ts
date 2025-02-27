@@ -12,10 +12,16 @@ export interface GitLabProject {
   visibility: string;
   default_branch: string;
   repository_access_level?: string;
+  cached?: boolean; // Flag for cached projects
 }
 
 export interface GitLabApiResponse {
   projects: GitLabProject[];
+  totalCount: number;
+}
+
+export interface MergeRequestsResponseWrapper {
+  mergeRequests: MergeRequestResponse[];
   totalCount: number;
 }
 

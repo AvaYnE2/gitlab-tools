@@ -1,5 +1,9 @@
 // API client for the backend server
 
+import {
+  MergeRequestResponse,
+  type MergeRequestsResponseWrapper,
+} from "@/types/gitlab";
 import type { ProjectsResponse } from "../../server/src/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3010";
@@ -14,16 +18,12 @@ async function apiRequest<T>(
     localStorage.getItem("gitlab_token") ||
     sessionStorage.getItem("gitlab_token");
 
-  console.log("Token:", token);
-  console.log("options", options);
   const headers = {
     "Content-Type": "application/json",
     ...options.headers,
     ...(token && { Authorization: `${token}` }),
     Accept: "application/json",
   };
-
-  console.log("Headers:", headers);
 
   const config: RequestInit = {
     ...options,
@@ -131,5 +131,22 @@ export const api = {
     return apiRequest(`/merge-requests/${projectId}/${mergeRequestIid}/close`, {
       method: "POST",
     });
+  },
+
+  getAllMergeRequests: async (
+    state = "opened",
+    scope = "created_by_me",
+    page = 1,
+    perPage = 20,
+  ) => {
+    const params = new URLSearchParams();
+    params.append("state", state);
+    params.append("scope", scope);
+    params.append("page", page.toString());
+    params.append("perPage", perPage.toString());
+
+    return apiRequest<MergeRequestsResponseWrapper>(
+      `/merge-requests?${params.toString()}`,
+    );
   },
 };

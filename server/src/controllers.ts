@@ -2,6 +2,7 @@ import {
   branchExists,
   closeMergeRequest,
   createMultipleProjectsMergeRequests,
+  fetchAllMergeRequests,
   fetchGitLabProjects,
   fetchOpenMergeRequests,
   fetchProjectBranches,
@@ -105,5 +106,15 @@ export const controllers = {
     return {
       exists: await branchExists(encryptedToken, projectId, branchName),
     };
+  },
+  
+  getAllMergeRequests: async (
+    encryptedToken: string,
+    state: string = "opened",
+    scope: string = "created_by_me",
+    page: number = 1,
+    perPage: number = 20,
+  ) => {
+    return await fetchAllMergeRequests(encryptedToken, state, scope, page, perPage);
   },
 };

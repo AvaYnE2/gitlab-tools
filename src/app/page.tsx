@@ -7,6 +7,7 @@ import { ProjectSearch } from "@/components/project-search";
 import { TokenInput } from "@/components/token-input";
 import { useGitLabProjects } from "@/hooks/use-gitlab-projects";
 import {
+  clearCachedProjects,
   clearToken,
   getToken,
   isUsingSessionStorage,
@@ -32,6 +33,8 @@ export default function Home() {
   }, []);
 
   // Use the React Query hook for data fetching
+  const [skipCache, setSkipCache] = useState(false);
+
   const {
     data: projectsData,
     totalPages,
@@ -44,9 +47,11 @@ export default function Home() {
     page,
     perPage,
     search: searchTerm,
+    skipCache,
   });
   // Get projects array from the response
   const projects = projectsData?.projects || [];
+  const isFromCache = projectsData?.fromCache || false;
 
   // Handle API errors, especially 401 (unauthorized)
   useEffect(() => {
@@ -95,13 +100,30 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row justify-center sm:justify-between items-center gap-4 mb-6">
               <ProjectSearch onSearch={handleSearch} disabled={isLoading} />
 
-              <div className="text-sm text-muted-foreground">
-                {projects.length > 0 && (
-                  <span>
-                    Showing {projects.length} projects
-                    {searchTerm ? ` matching "${searchTerm}"` : ""}
-                  </span>
-                )}
+              <div className="flex items-center space-x-4">
+                <div className="text-sm text-muted-foreground">
+                  {projects.length > 0 && (
+                    <span>
+                      Showing {projects.length} projects
+                      {searchTerm ? ` matching "${searchTerm}"` : ""}
+                      {isFromCache && (
+                        <span className="ml-2 text-xs px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded">cached</span>
+                      )}
+                    </span>
+                  )}
+                </div>
+                
+                <button
+                  onClick={() => {
+                    clearCachedProjects();
+                    setSkipCache(true);
+                    refetch().then(() => setSkipCache(false));
+                  }}
+                  className="text-xs px-2 py-1 rounded bg-accent hover:bg-accent/80 text-accent-foreground"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Loading..." : "Refresh Projects"}
+                </button>
               </div>
             </div>
           )}

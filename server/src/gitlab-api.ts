@@ -45,8 +45,6 @@ export async function fetchGitLabProjects(
 ): Promise<{ projects: GitLabProject[]; totalCount: number }> {
   const token = decryptToken(encryptedToken);
 
-  console.log("token", token);
-
   const params = new URLSearchParams({
     page: page.toString(),
     per_page: perPage.toString(),
@@ -63,7 +61,6 @@ export async function fetchGitLabProjects(
   }
 
   const url = `/projects?${params.toString()}`;
-  console.log("token", token);
   const response = await fetch(`${GITLAB_API_URL}${url}`, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -143,6 +140,74 @@ export async function closeMergeRequest(
       body: JSON.stringify({ state_event: "close" }),
     },
   );
+}
+
+// Fetch all merge requests for the user
+export async function fetchAllMergeRequests(
+  encryptedToken: string,
+  state = "opened",
+  scope = "created_by_me",
+  page = 1,
+  perPage = 20,
+): Promise<{ mergeRequests: MergeRequestResponse[]; totalCount: number }> {
+  const token = decryptToken(encryptedToken);
+  if (!token) {
+    throw new Error("No token found");
+  }
+
+  const params = new URLSearchParams({
+    state,
+    scope,
+    page: page.toString(),
+    per_page: perPage.toString(),
+    order_by: "created_at",
+    sort: "desc",
+  });
+
+  const url = `/merge_requests?${params.toString()}`;
+  const response = await fetch(`${GITLAB_API_URL}${url}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `GitLab API Error: ${response.status} ${response.statusText}`,
+    );
+  }
+
+  const mergeRequests = (await response.json()) as MergeRequestResponse[];
+  const totalCountHeader = response.headers.get("x-total");
+  const totalCount = totalCountHeader
+    ? Number.parseInt(totalCountHeader, 10)
+    : mergeRequests.length;
+    
+  // Enhance MRs with project names
+  const enhancedMergeRequests = await Promise.all(
+    mergeRequests.map(async (mr) => {
+      try {
+        // Get project details to include the name
+        const project = await gitlabApiRequest<GitLabProject>(
+          `/projects/${mr.project_id}`,
+          token
+        );
+        return {
+          ...mr,
+          project_name: project.name,
+        };
+      } catch (error) {
+        // If we can't fetch the project, just return the original MR
+        return mr;
+      }
+    })
+  );
+
+  return {
+    mergeRequests: enhancedMergeRequests,
+    totalCount,
+  };
 }
 
 // Create a single merge request
